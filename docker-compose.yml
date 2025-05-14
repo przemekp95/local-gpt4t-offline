@@ -1,0 +1,105 @@
+version: '3.9'
+
+services:
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+
+  webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: webui
+    depends_on:
+      - ollama
+    ports:
+      - "3000:8080"
+    volumes:
+      - webui:/app/backend/data
+    environment:
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+    restart: unless-stopped
+
+  langchain-server:
+    build: ./services/long-memory
+    container_name: langchain-server
+    volumes:
+      - ./data/documents:/data/documents
+    restart: unless-stopped
+
+  web-search:
+    build: ./services/web-search
+    container_name: web-search
+    environment:
+      - SERPAPI_KEY=${SERPAPI_KEY}
+    restart: unless-stopped
+
+  whisper:
+    build: ./services/whisper
+    container_name: whisper
+    ports:
+      - "5001:5001"
+    restart: unless-stopped
+
+  tts:
+    build: ./services/tts
+    container_name: tts
+    ports:
+      - "5002:5002"
+    restart: unless-stopped
+
+  vision:
+    build: ./services/vision
+    container_name: vision
+    ports:
+      - "5003:5003"
+    restart: unless-stopped
+
+  video:
+    build: ./services/video
+    container_name: video
+    restart: unless-stopped
+
+  voice-clone:
+    build: ./services/voice-clone
+    container_name: voice-clone
+    restart: unless-stopped
+
+  router:
+    build: ./services/router
+    container_name: router
+    ports:
+      - "5050:5050"
+    restart: unless-stopped
+
+  persona:
+    build: ./services/persona
+    container_name: persona
+    restart: unless-stopped
+
+  memory:
+    build: ./services/memory
+    container_name: memory
+    volumes:
+      - memorydb:/app/db
+    restart: unless-stopped
+
+  cloud-sync:
+    build: ./services/cloud-sync
+    container_name: cloud-sync
+    volumes:
+      - ./cloud-mount:/mnt/cloud
+    restart: unless-stopped
+    environment:
+      - NEXTCLOUD_URL=${NEXTCLOUD_URL}
+      - NEXTCLOUD_USERNAME=${NEXTCLOUD_USERNAME}
+      - NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
+
+volumes:
+  ollama:
+  webui:
+  memorydb:
