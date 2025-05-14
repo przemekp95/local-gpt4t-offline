@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
 
   ollama:
@@ -8,7 +6,7 @@ services:
     volumes:
       - ollama:/root/.ollama
     ports:
-      - "11434:11434"
+      - "11435:11434"
     restart: unless-stopped
 
   webui:
@@ -43,6 +41,8 @@ services:
     container_name: whisper
     ports:
       - "5001:5001"
+    volumes:
+      - ./services/whisper:/app
     restart: unless-stopped
 
   tts:
@@ -50,6 +50,10 @@ services:
     container_name: tts
     ports:
       - "5002:5002"
+    volumes:
+      - ./services/tts:/app
+    environment:
+      - COQUI_TOS_AGREED=1
     restart: unless-stopped
 
   vision:
@@ -57,16 +61,22 @@ services:
     container_name: vision
     ports:
       - "5003:5003"
+    volumes:
+      - ./services/vision:/app
     restart: unless-stopped
 
   video:
     build: ./services/video
     container_name: video
+    volumes:
+      - ./services/video:/app
     restart: unless-stopped
 
   voice-clone:
     build: ./services/voice-clone
     container_name: voice-clone
+    volumes:
+      - ./services/voice-clone:/app
     restart: unless-stopped
 
   router:
@@ -74,11 +84,15 @@ services:
     container_name: router
     ports:
       - "5050:5050"
+    volumes:
+      - ./services/router:/app
     restart: unless-stopped
 
   persona:
     build: ./services/persona
     container_name: persona
+    volumes:
+      - ./services/persona:/app
     restart: unless-stopped
 
   memory:
@@ -93,13 +107,14 @@ services:
     container_name: cloud-sync
     volumes:
       - ./cloud-mount:/mnt/cloud
-    restart: unless-stopped
     environment:
       - NEXTCLOUD_URL=${NEXTCLOUD_URL}
       - NEXTCLOUD_USERNAME=${NEXTCLOUD_USERNAME}
       - NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
+    restart: unless-stopped
 
 volumes:
   ollama:
   webui:
   memorydb:
+
