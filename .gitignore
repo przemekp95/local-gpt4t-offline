@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.log
+*.sqlite
+.env
+cloud-mount/
+data/documents/*
+notebooks/*
